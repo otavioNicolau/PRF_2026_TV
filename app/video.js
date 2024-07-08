@@ -1,12 +1,11 @@
 import { Stack, useLocalSearchParams } from 'expo-router';
 import React, { useState, useRef, useEffect, useCallback } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Dimensions, SafeAreaView, TouchableWithoutFeedback } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Dimensions, SafeAreaView, TouchableWithoutFeedback, Pressable } from 'react-native';
 import { Video } from 'expo-av';
 import * as FileSystem from 'expo-file-system';
 import Slider from '@react-native-community/slider';
 import { MaterialIcons } from '@expo/vector-icons';
 import * as ScreenOrientation from 'expo-screen-orientation';
-
 
 const VIDEO_DATA_FILE = `${FileSystem.documentDirectory}videoData.json`;
 
@@ -42,7 +41,6 @@ export default function Video1() {
   const [videoDuration, setVideoDuration] = useState(0);
   const [controlsVisible, setControlsVisible] = useState(true);
 
-
   useEffect(() => {
     const lockOrientation = async () => {
       await ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.LANDSCAPE);
@@ -51,7 +49,6 @@ export default function Video1() {
     lockOrientation();
 
   }, []);
-
 
   useEffect(() => {
     const loadVideoPosition = async () => {
@@ -178,9 +175,11 @@ export default function Video1() {
           />
           {!isFullscreen && controlsVisible && (
             <View style={styles.controlsContainer}>
-              <TouchableOpacity onPress={togglePlayPause} style={styles.controlButton}>
-                <MaterialIcons name={isPlaying ? "pause" : "play-arrow"} size={32} color="white" />
-              </TouchableOpacity>
+              <Pressable onPress={togglePlayPause} style={styles.controlButton}>
+                {({ pressed }) => (
+                  <MaterialIcons name={isPlaying ? "pause" : "play-arrow"} size={32} color={pressed ? '#1E90FF' : 'white'} />
+                )}
+              </Pressable>
               <Slider
                 style={styles.slider}
                 minimumValue={0}
@@ -194,13 +193,17 @@ export default function Video1() {
               <Text style={styles.timeDisplay}>
                 {formatTime(videoPosition)} / {formatTime(videoDuration)}
               </Text>
-              <TouchableOpacity onPress={decreaseSpeed} style={styles.controlButton}>
-                <MaterialIcons name="remove" size={24} color="white" />
-              </TouchableOpacity>
+              <Pressable onPress={decreaseSpeed} style={styles.controlButton}>
+                {({ pressed }) => (
+                  <MaterialIcons name="remove" size={24} color={pressed ? '#1E90FF' : 'white'} />
+                )}
+              </Pressable>
               <Text style={styles.controlText}>{videoSpeed.toFixed(2)}x</Text>
-              <TouchableOpacity onPress={increaseSpeed} style={styles.controlButton}>
-                <MaterialIcons name="add" size={24} color="white" />
-              </TouchableOpacity>
+              <Pressable onPress={increaseSpeed} style={styles.controlButton}>
+                {({ pressed }) => (
+                  <MaterialIcons name="add" size={24} color={pressed ? '#1E90FF' : 'white'} />
+                )}
+              </Pressable>
             </View>
           )}
         </View>
@@ -239,7 +242,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   controlButton: {
-    padding: 10
+    padding: 10,
   },
   controlText: {
     color: '#fff',

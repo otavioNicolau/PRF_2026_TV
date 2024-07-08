@@ -1,4 +1,4 @@
-import { Stack, useNavigation, Link } from 'expo-router';
+import { Stack, useNavigation } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import { View, Button, Pressable, Text, StyleSheet, ActivityIndicator, FlatList, ScrollView, SafeAreaView, RefreshControl } from 'react-native';
 import axios from 'axios';
@@ -7,7 +7,6 @@ import axios from 'axios';
 const url = 'https://api.estrategiaconcursos.com.br/api/aluno/curso';
 
 export default function Index() {
-
   const navigation = useNavigation();
 
   const [data, setData] = useState(null);
@@ -15,6 +14,7 @@ export default function Index() {
   const [error, setError] = useState(null);
   const [refreshing, setRefreshing] = useState(false);
   const [token, setToken] = useState(null); // Estado para armazenar o token
+  const [focusedCourse, setFocusedCourse] = useState(null); // Estado para gerenciar o foco
 
   useEffect(() => {
     initializeData();
@@ -137,11 +137,8 @@ export default function Index() {
           }}
         />
 
-        {/* Componente Slide (se necessário) */}
-        {/* <Slide /> */}
-
         {data && data.concursos ? (
-          data.concursos.map(concurso => (
+          data.concursos.map((concurso, index) => (
             <View key={concurso.id} style={styles.stepContainer}>
               <Text style={styles.subtitle}>{concurso.titulo.toUpperCase()}</Text>
               <FlatList
@@ -150,18 +147,22 @@ export default function Index() {
                 keyExtractor={item => item.id.toString()}
                 renderItem={({ item }) => (
                   <Pressable
+                    onFocus={() => setFocusedCourse(item.id)}
                     onPress={() => navigation.navigate('aulas', { id: item.id })}
-                    style={({ pressed }) => ({
-                      backgroundColor: pressed ? '#333333' : '#1B1B1B',
+                    style={({ focused }) => ({
+                      backgroundColor: focusedCourse === item.id ? '#333333' : '#1B1B1B',
                       marginTop: 5,
                       marginBottom: 5,
                       marginLeft: 5,
-                      marginRight: 5
+                      marginRight: 5,
+                      borderWidth: focusedCourse === item.id ? 2 : 0,
+                      borderColor: focusedCourse === item.id ? '#1E90FF' : 'transparent',
+                      padding: 10,
                     })}
                   >
                     <View style={styles.cursoContainer}>
                       <Text style={styles.cursoNome}>{item.nome.toUpperCase()}</Text>
-                      <Text style={styles.cursoInfo}>sDATA DE INÍCIO: {item.data_inicio}</Text>
+                      <Text style={styles.cursoInfo}>DATA DE INÍCIO: {item.data_inicio}</Text>
                       <Text style={styles.cursoInfo}>DATA DE RETIRADA: {item.data_retirada}</Text>
                       <Text style={styles.cursoInfo}>TOTAL DE AULAS: {item.total_aulas}</Text>
                       <Text style={styles.cursoInfo}>TOTAL DE AULAS VISUALIZADAS: {item.total_aulas_visualizadas}</Text>

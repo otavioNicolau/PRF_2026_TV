@@ -5,6 +5,7 @@ import { useLocalSearchParams, Stack, Link, useNavigation } from 'expo-router';
 
 const VideoList = ({ videos, aula, assunto, materia }) => {
   const navigation = useNavigation();
+  const [focusedVideo, setFocusedVideo] = useState(null); // Estado para gerenciar o foco nos vídeos
 
   const getVideoUrl = (resolucoes) => {
     if (!resolucoes) {
@@ -13,14 +14,12 @@ const VideoList = ({ videos, aula, assunto, materia }) => {
     return resolucoes['720p'] || resolucoes['480p'] || resolucoes['360p'] || null;
   };
 
-  
   return (
     <View>
-
       {videos.map((video, index) => (
         <View key={index}>
-
           <Pressable
+            onFocus={() => setFocusedVideo(index)}
             onPress={() =>
               navigation.navigate('video', {
                 video: getVideoUrl(video.resolucoes),
@@ -28,13 +27,15 @@ const VideoList = ({ videos, aula, assunto, materia }) => {
                 id_video: video.id,
               })
             }
-            style={({ pressed }) => ({
-              backgroundColor: pressed ? '#333333' : '#1B1B1B',
+            style={({ focused }) => ({
+              backgroundColor: focusedVideo === index ? '#333333' : '#1B1B1B',
               marginTop: 5,
               marginBottom: 5,
               marginLeft: 5,
               marginRight: 5,
-              width: '98%'
+              width: '98%',
+              borderWidth: focusedVideo === index ? 2 : 0,
+              borderColor: focusedVideo === index ? '#1E90FF' : 'transparent',
             })}
           >
             <View style={styles.videoBox}>
@@ -47,15 +48,14 @@ const VideoList = ({ videos, aula, assunto, materia }) => {
       ))}
     </View>
   );
-
 };
 
 export default function Aula() {
   const navigation = useNavigation();
-
   const { aula, materia } = useLocalSearchParams();
   const [loading, setLoading] = useState(true);
   const aulaJson = JSON.parse(aula);
+  const [focusedPdf, setFocusedPdf] = useState(null); // Estado para gerenciar o foco nos PDFs
 
   useEffect(() => {
     const fetchData = async () => {
@@ -111,17 +111,21 @@ export default function Aula() {
             <Text style={[styles.aula, styles.whiteText]}>{aulaJson.nome.toUpperCase()}</Text>
 
             <Text style={styles.whiteText}>{aulaJson.conteudo}</Text>
-            <Text style={[styles.videoTitle, styles.whiteText]}>ARQUIVOS:</Text>
+
+            {/* <Text style={[styles.videoTitle, styles.whiteText]}>ARQUIVOS:</Text>
             {!aulaJson.pdf && !aulaJson.pdf_grifado && !aulaJson.pdf_simplificado ? (
               <Text style={styles.whiteText}>NENHUM PDF DISPONÍVEL</Text>
             ) : (
               <>
                 {aulaJson.pdf && (
                   <Pressable
+                    onFocus={() => setFocusedPdf('pdf')}
                     onPress={() => Linking.openURL(aulaJson.pdf)}
-                    style={({ pressed }) => ({
-                      backgroundColor: pressed ? '#333333' : '#1B1B1B',
+                    style={({ focused }) => ({
+                      backgroundColor: focusedPdf === 'pdf' ? '#333333' : '#1B1B1B',
                       marginBottom: 10,
+                      borderWidth: focusedPdf === 'pdf' ? 2 : 0,
+                      borderColor: focusedPdf === 'pdf' ? '#1E90FF' : 'transparent',
                     })}
                   >
                     <Text style={[styles.linkText, styles.A5B99CText]}>PDF NORMAL</Text>
@@ -129,11 +133,13 @@ export default function Aula() {
                 )}
                 {aulaJson.pdf_grifado && (
                   <Pressable
+                    onFocus={() => setFocusedPdf('pdf_grifado')}
                     onPress={() => Linking.openURL(aulaJson.pdf_grifado)}
-                    style={({ pressed }) => ({
-                      backgroundColor: pressed ? '#333333' : '#1B1B1B',
+                    style={({ focused }) => ({
+                      backgroundColor: focusedPdf === 'pdf_grifado' ? '#333333' : '#1B1B1B',
                       marginBottom: 10,
-
+                      borderWidth: focusedPdf === 'pdf_grifado' ? 2 : 0,
+                      borderColor: focusedPdf === 'pdf_grifado' ? '#1E90FF' : 'transparent',
                     })}
                   >
                     <Text style={[styles.linkText, styles.A5B99CText]}>PDF GRIFADO</Text>
@@ -141,18 +147,20 @@ export default function Aula() {
                 )}
                 {aulaJson.pdf_simplificado && (
                   <Pressable
+                    onFocus={() => setFocusedPdf('pdf_simplificado')}
                     onPress={() => Linking.openURL(aulaJson.pdf_simplificado)}
-                    style={({ pressed }) => ({
-                      backgroundColor: pressed ? '#333333' : '#1B1B1B',
+                    style={({ focused }) => ({
+                      backgroundColor: focusedPdf === 'pdf_simplificado' ? '#333333' : '#1B1B1B',
                       marginBottom: 10,
-
+                      borderWidth: focusedPdf === 'pdf_simplificado' ? 2 : 0,
+                      borderColor: focusedPdf === 'pdf_simplificado' ? '#1E90FF' : 'transparent',
                     })}
                   >
                     <Text style={[styles.A5B99CText]}>PDF SIMPLIFICADO</Text>
                   </Pressable>
                 )}
               </>
-            )}
+            )} */}
             <Text style={[styles.videoTitle, styles.whiteText]}>VIDEOS:</Text>
             <VideoList materia={materia} aula={aulaJson.nome} assunto={aulaJson.conteudo} videos={aulaJson.videos} />
           </View>
@@ -180,7 +188,6 @@ const styles = StyleSheet.create({
     color: '#ffffff',
   },
   A5B99CText: {
-
     color: '#fff',
     fontWeight: 'bold',
     paddingHorizontal: 20,
@@ -189,7 +196,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     borderWidth: 0.5,
     borderColor: '#ffffff',
-
   },
   videoTitle: {
     fontSize: 16,
@@ -215,10 +221,8 @@ const styles = StyleSheet.create({
   },
   cursoContainer: {
     flexDirection: 'column',
-    // alignItems: 'flex-start',
     justifyContent: 'flex-start',
     marginBottom: 10,
-
   },
   buttonsContainer: {
     flexDirection: 'col',
@@ -250,10 +254,8 @@ const styles = StyleSheet.create({
     marginLeft: 10,
   },
   videoBox: {
-
     borderWidth: 1,
     borderColor: '#ffffff',
-    // marginBottom: 10,
     padding: 10,
     width: '100%',
     flexDirection: 'row',

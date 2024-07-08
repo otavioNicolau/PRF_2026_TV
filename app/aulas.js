@@ -1,20 +1,19 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, ActivityIndicator, StyleSheet, FlatList, ScrollView, Pressable, SafeAreaView, RefreshControl } from 'react-native';
+import { View, Text, ActivityIndicator, StyleSheet, ScrollView, Pressable, SafeAreaView, RefreshControl } from 'react-native';
 import axios from 'axios';
-import { Stack, useNavigation, useLocalSearchParams } from 'expo-router';  // Importando os componentes necessários
+import { Stack, useNavigation, useLocalSearchParams } from 'expo-router';
 
 const Aulas = () => {
   const navigation = useNavigation();
-
   const { id } = useLocalSearchParams();
   const [data, setData] = useState(null);
   const [error, setError] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [focusedAula, setFocusedAula] = useState(null); // Estado para gerenciar o foco
 
   const url = `https://api.estrategiaconcursos.com.br/api/aluno/curso/${id}`;
 
-  // Função para obter o token da API
   const getToken = async () => {
     try {
       const response = await axios.get('https://teal-crostata-aea03c.netlify.app/api/config');
@@ -25,14 +24,10 @@ const Aulas = () => {
     }
   };
 
-  // Função para buscar os dados da API
   const fetchData = async () => {
     try {
-      const token = await getToken(); // Obtém o token
-      const headers = {
-        Authorization: `${token}`,
-      };
-
+      const token = await getToken();
+      const headers = { Authorization: `${token}` };
       const response = await axios.get(url, { headers });
       setData(response.data.data);
       setError(null);
@@ -58,14 +53,10 @@ const Aulas = () => {
     return (
       <View style={[styles.container, styles.center, { backgroundColor: '#1B1B1B' }]}>
         <Stack.Screen options={{
-          headerStyle: {
-            backgroundColor: '#1B1B1B',
-          },
+          headerStyle: { backgroundColor: '#1B1B1B' },
           headerTintColor: '#fff',
-          headerTitleStyle: {
-            fontWeight: 'bold',
-          },
-          title: 'AULA'
+          headerTitleStyle: { fontWeight: 'bold' },
+          title: 'AULA',
         }} />
         <Text style={[styles.errorText, styles.whiteText]}>Erro ao carregar os dados do curso.</Text>
       </View>
@@ -76,14 +67,10 @@ const Aulas = () => {
     return (
       <View style={[styles.container, styles.center, { backgroundColor: '#1B1B1B' }]}>
         <Stack.Screen options={{
-          headerStyle: {
-            backgroundColor: '#1B1B1B',
-          },
+          headerStyle: { backgroundColor: '#1B1B1B' },
           headerTintColor: '#fff',
-          headerTitleStyle: {
-            fontWeight: 'bold',
-          },
-          title: 'AULA'
+          headerTitleStyle: { fontWeight: 'bold' },
+          title: 'AULA',
         }} />
         <ActivityIndicator size="large" color="#ffffff" />
         <Text style={[styles.whiteText]}>Carregando</Text>
@@ -95,18 +82,12 @@ const Aulas = () => {
     <SafeAreaView style={styles.safeArea}>
       <ScrollView
         style={styles.scrollView}
-        refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} colors={['#1E90FF']} />
-        }
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={handleRefresh} colors={['#1E90FF']} />}
       >
         <Stack.Screen options={{
-          headerStyle: {
-            backgroundColor: '#1B1B1B',
-          },
+          headerStyle: { backgroundColor: '#1B1B1B' },
           headerTintColor: '#fff',
-          headerTitleStyle: {
-            fontWeight: 'bold',
-          },
+          headerTitleStyle: { fontWeight: 'bold' },
           title: data.nome,
         }} />
         <Text style={[styles.title, styles.whiteText]}>{data.nome.toUpperCase()}</Text>
@@ -118,14 +99,19 @@ const Aulas = () => {
         <Text style={[styles.sectionTitle, styles.whiteText]}>AULAS:</Text>
 
         {data.aulas.map((aula) => (
-          <Pressable key={aula.id}
+          <Pressable
+            key={aula.id}
+            onFocus={() => setFocusedAula(aula.id)}
             onPress={() => navigation.navigate('aula', { aula: JSON.stringify(aula), materia: data.nome })}
-            style={({ pressed }) => ({
-              backgroundColor: pressed ? '#333333' : '#1B1B1B',
+            style={({ focused }) => ({
+              backgroundColor: focusedAula === aula.id ? '#333333' : '#1B1B1B',
               marginTop: 5,
               marginBottom: 5,
               marginLeft: 5,
-              marginRight: 5
+              marginRight: 5,
+              borderWidth: focusedAula === aula.id ? 2 : 0,
+              borderColor: focusedAula === aula.id ? '#1E90FF' : 'transparent',
+              padding: 10,
             })}
           >
             <View style={styles.aulaContainer}>
@@ -148,11 +134,6 @@ const styles = StyleSheet.create({
     marginBottom: 5,
     fontWeight: 'bold',
   },
-  value: {
-    color: '#fff',
-    fontSize: 16,
-    marginBottom: 10,
-  },
   safeArea: {
     flex: 1,
     backgroundColor: '#1B1B1B',
@@ -161,10 +142,6 @@ const styles = StyleSheet.create({
     flex: 1,
     marginLeft: 10,
     marginRight: 10,
-  },
-  videoLink: {
-    margin: 8,
-    padding: 8,
   },
   container: {
     backgroundColor: '#1B1B1B',
@@ -183,17 +160,10 @@ const styles = StyleSheet.create({
   whiteText: {
     color: '#ffffff',
   },
-  A5B99CText: {
-    color: '#A5B99C',
-    fontWeight: 'bold',
-    textDecorationLine: 'underline',
-  },
   title: {
     fontSize: 20,
     fontWeight: 'bold',
     marginBottom: 16,
-    justifyContent: 'center',
-    alignItems: 'center',
     textAlign: 'center',
   },
   sectionTitle: {
@@ -202,13 +172,7 @@ const styles = StyleSheet.create({
     marginTop: 20,
     marginBottom: 10,
   },
-  videoTitle: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    marginTop: 10,
-    marginBottom: 10,
-  },
-  cursoContainer: {
+  aulaContainer: {
     padding: 10,
     borderWidth: 0.5,
     borderColor: '#ccc',
@@ -218,25 +182,6 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginBottom: 8,
     color: '#ffffff',
-  },
-  link: {
-    marginTop: 8,
-  },
-  linkText: {
-    color: '#A5B99C',
-    textDecorationLine: 'underline',
-    textTransform: 'uppercase',
-  },
-  videoText: {
-    marginTop: 20,
-    color: '#ffffff',
-    padding: 10,
-    fontSize: 16,
-    fontWeight: 'bold',
-    borderWidth: 1,
-    borderColor: '#ccc',
-    backgroundColor: '#1B1B1B',
-    height: 45,
   },
 });
 
