@@ -74,7 +74,7 @@ export default function Index() {
   if (error) {
     return (
       <View style={[styles.container, styles.center]}>
-        <Stack.Screen
+        {/* <Stack.Screen
           options={{
             headerShown: true,
             headerStyle: {
@@ -86,7 +86,7 @@ export default function Index() {
             },
             title: 'PROJETO RPF',
           }}
-        />
+        /> */}
         <Text style={styles.errorText}>Erro ao carregar os dados: {error.message}</Text>
         <Button title="Tentar Novamente" onPress={handleRefresh} color="#1E90FF" />
       </View>
@@ -98,6 +98,11 @@ export default function Index() {
       <View style={[styles.container, styles.center]}>
         <Stack.Screen
           options={{
+            headerShown: false,
+          }}
+        />
+        {/* <Stack.Screen
+          options={{
             headerShown: true,
             headerStyle: {
               backgroundColor: '#1B1B1B',
@@ -108,7 +113,7 @@ export default function Index() {
             },
             title: 'PROJETO RPF',
           }}
-        />
+        /> */}
         <ActivityIndicator size="large" color="#ffffff" />
         <Text style={styles.whiteText}>Carregando...</Text>
       </View>
@@ -125,6 +130,11 @@ export default function Index() {
       >
         <Stack.Screen
           options={{
+            headerShown: false,
+          }}
+        />
+        {/* <Stack.Screen
+          options={{
             headerShown: true,
             headerStyle: {
               backgroundColor: '#1B1B1B',
@@ -135,7 +145,7 @@ export default function Index() {
             },
             title: 'PROJETO RPF',
           }}
-        />
+        /> */}
 
         {data && data.concursos ? (
           data.concursos.map((concurso, index) => (
@@ -151,10 +161,10 @@ export default function Index() {
                     onPress={() => navigation.navigate('aulas', { id: item.id })}
                     style={({ focused }) => ({
                       backgroundColor: focusedCourse === item.id ? '#333333' : '#1B1B1B',
-                      marginTop: 5,
-                      marginBottom: 5,
-                      marginLeft: 5,
-                      marginRight: 5,
+                      // marginTop: 5,
+                      // marginBottom: 5,
+                      // marginLeft: 5,
+                      // marginRight: 5,
                       borderWidth: focusedCourse === item.id ? 2 : 0,
                       borderColor: focusedCourse === item.id ? '#1E90FF' : 'transparent',
                       padding: 10,
@@ -225,10 +235,11 @@ const styles = StyleSheet.create({
     fontSize: 12,
   },
   subtitle: {
-    fontSize: 16,
-    fontWeight: '600',
+    fontSize: 25,
+    fontWeight: 'bold',
     textAlign: 'center',
     marginBottom: 10,
+    marginTop:10,
     textTransform: 'uppercase',
     color: '#ffffff',
   },

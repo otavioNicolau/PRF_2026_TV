@@ -171,9 +171,10 @@ export default function Video1() {
             onFullscreenUpdate={handleFullscreenUpdate}
             shouldPlay
             onPlaybackStatusUpdate={handlePlaybackStatusUpdate}
-            useNativeControls={isFullscreen}
+            // useNativeControls={isFullscreen}
+            useNativeControls
           />
-          {!isFullscreen && controlsVisible && (
+          {/* {!isFullscreen && controlsVisible && (
             <View style={styles.controlsContainer}>
               <Pressable onPress={togglePlayPause} style={styles.controlButton}>
                 {({ pressed }) => (
@@ -205,7 +206,7 @@ export default function Video1() {
                 )}
               </Pressable>
             </View>
-          )}
+          )} */}
         </View>
       </TouchableWithoutFeedback>
     </SafeAreaView>

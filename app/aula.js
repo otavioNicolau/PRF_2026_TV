@@ -29,13 +29,14 @@ const VideoList = ({ videos, aula, assunto, materia }) => {
             }
             style={({ focused }) => ({
               backgroundColor: focusedVideo === index ? '#333333' : '#1B1B1B',
-              marginTop: 5,
-              marginBottom: 5,
-              marginLeft: 5,
-              marginRight: 5,
+              // marginTop: 5,
+              // marginBottom: 5,
+              // marginLeft: 5,
+              // marginRight: 5,
               width: '98%',
               borderWidth: focusedVideo === index ? 2 : 0,
               borderColor: focusedVideo === index ? '#1E90FF' : 'transparent',
+              padding:10
             })}
           >
             <View style={styles.videoBox}>
@@ -75,16 +76,11 @@ export default function Aula() {
   if (loading) {
     return (
       <View style={styles.loadingContainer}>
-        <Stack.Screen options={{
-          headerStyle: {
-            backgroundColor: '#1B1B1B',
-          },
-          headerTintColor: '#fff',
-          headerTitleStyle: {
-            fontWeight: 'bold',
-          },
-          title: 'AULA',
-        }} />
+        <Stack.Screen
+          options={{
+            headerShown: false,
+          }}
+        />
         <ActivityIndicator size="large" color="#ffffff" />
         <Text style={[styles.whiteText]}>Carregando</Text>
       </View>
@@ -94,7 +90,7 @@ export default function Aula() {
   return (
     <SafeAreaView style={styles.safeArea}>
       <ScrollView contentContainerStyle={styles.container}>
-        <Stack.Screen options={{
+        {/* <Stack.Screen options={{
           headerStyle: {
             backgroundColor: '#1B1B1B',
           },
@@ -103,8 +99,12 @@ export default function Aula() {
             fontWeight: 'bold',
           },
           title: aulaJson.nome,
-        }} />
-
+        }} /> */}
+        <Stack.Screen
+          options={{
+            headerShown: false,
+          }}
+        />
         <View key={aulaJson.id} style={styles.aulaContainer}>
           <View style={styles.cursoContainer}>
             <Text style={[styles.materia, styles.whiteText]}>{materia.toUpperCase()}</Text>
@@ -205,9 +205,9 @@ const styles = StyleSheet.create({
   },
   materia: {
     textAlign: 'center',
-    fontSize: 20,
+    fontSize: 25,
     fontWeight: 'bold',
-    marginTop: 1,
+    marginTop: 10,
     marginBottom: 5,
     width: '99%',
     flexDirection: 'row',

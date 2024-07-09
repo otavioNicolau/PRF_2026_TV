@@ -52,12 +52,11 @@ const Aulas = () => {
   if (error) {
     return (
       <View style={[styles.container, styles.center, { backgroundColor: '#1B1B1B' }]}>
-        <Stack.Screen options={{
-          headerStyle: { backgroundColor: '#1B1B1B' },
-          headerTintColor: '#fff',
-          headerTitleStyle: { fontWeight: 'bold' },
-          title: 'AULA',
-        }} />
+        <Stack.Screen
+          options={{
+            headerShown: false,
+          }}
+        />
         <Text style={[styles.errorText, styles.whiteText]}>Erro ao carregar os dados do curso.</Text>
       </View>
     );
@@ -66,12 +65,11 @@ const Aulas = () => {
   if (isLoading) {
     return (
       <View style={[styles.container, styles.center, { backgroundColor: '#1B1B1B' }]}>
-        <Stack.Screen options={{
-          headerStyle: { backgroundColor: '#1B1B1B' },
-          headerTintColor: '#fff',
-          headerTitleStyle: { fontWeight: 'bold' },
-          title: 'AULA',
-        }} />
+        <Stack.Screen
+          options={{
+            headerShown: false,
+          }}
+        />
         <ActivityIndicator size="large" color="#ffffff" />
         <Text style={[styles.whiteText]}>Carregando</Text>
       </View>
@@ -84,12 +82,17 @@ const Aulas = () => {
         style={styles.scrollView}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={handleRefresh} colors={['#1E90FF']} />}
       >
-        <Stack.Screen options={{
+        <Stack.Screen
+          options={{
+            headerShown: false,
+          }}
+        />
+        {/* <Stack.Screen options={{
           headerStyle: { backgroundColor: '#1B1B1B' },
           headerTintColor: '#fff',
           headerTitleStyle: { fontWeight: 'bold' },
           title: data.nome,
-        }} />
+        }} /> */}
         <Text style={[styles.title, styles.whiteText]}>{data.nome.toUpperCase()}</Text>
         <Text style={styles.label}>Data de Início: {data.data_inicio}</Text>
         <Text style={styles.label}>Data de Retirada: {data.data_retirada}</Text>
@@ -105,10 +108,10 @@ const Aulas = () => {
             onPress={() => navigation.navigate('aula', { aula: JSON.stringify(aula), materia: data.nome })}
             style={({ focused }) => ({
               backgroundColor: focusedAula === aula.id ? '#333333' : '#1B1B1B',
-              marginTop: 5,
-              marginBottom: 5,
-              marginLeft: 5,
-              marginRight: 5,
+              // marginTop: 5,
+              // marginBottom: 5,
+              // marginLeft: 5,
+              // marginRight: 5,
               borderWidth: focusedAula === aula.id ? 2 : 0,
               borderColor: focusedAula === aula.id ? '#1E90FF' : 'transparent',
               padding: 10,
@@ -161,10 +164,11 @@ const styles = StyleSheet.create({
     color: '#ffffff',
   },
   title: {
-    fontSize: 20,
+    fontSize: 25,
     fontWeight: 'bold',
     marginBottom: 16,
     textAlign: 'center',
+    marginTop:10,
   },
   sectionTitle: {
     fontSize: 20,
