@@ -6,6 +6,7 @@ import * as FileSystem from 'expo-file-system';
 import Slider from '@react-native-community/slider';
 import { MaterialIcons } from '@expo/vector-icons';
 import * as ScreenOrientation from 'expo-screen-orientation';
+import { useTVEventHandler } from 'react-native';
 
 const VIDEO_DATA_FILE = `${FileSystem.documentDirectory}videoData.json`;
 
@@ -47,7 +48,6 @@ export default function Video1() {
     };
 
     lockOrientation();
-
   }, []);
 
   useEffect(() => {
@@ -152,6 +152,34 @@ export default function Video1() {
     return `${paddedMinutes}:${paddedSeconds}`;
   };
 
+  // Handle TV remote events
+  const handleTVEvent = (evt) => {
+    switch (evt.eventType) {
+      case 'playPause':
+        togglePlayPause();
+        break;
+      case 'left':
+        videoRef.current.setPositionAsync(videoPosition - 10000); // Rewind 10 seconds
+        break;
+      case 'right':
+        videoRef.current.setPositionAsync(videoPosition + 10000); // Fast forward 10 seconds
+        break;
+      case 'up':
+        increaseSpeed(); // Increase speed
+        break;
+      case 'down':
+        decreaseSpeed(); // Decrease speed
+        break;
+      case 'select':
+        setControlsVisible(!controlsVisible);
+        break;
+      default:
+        break;
+    }
+  };
+
+  useTVEventHandler(handleTVEvent);
+
   return (
     <SafeAreaView style={styles.containerArea}>
       <Stack.Screen
@@ -171,10 +199,9 @@ export default function Video1() {
             onFullscreenUpdate={handleFullscreenUpdate}
             shouldPlay
             onPlaybackStatusUpdate={handlePlaybackStatusUpdate}
-            // useNativeControls={isFullscreen}
-            useNativeControls
+            useNativeControls={isFullscreen}
           />
-          {/* {!isFullscreen && controlsVisible && (
+          {!isFullscreen && controlsVisible && (
             <View style={styles.controlsContainer}>
               <Pressable onPress={togglePlayPause} style={styles.controlButton}>
                 {({ pressed }) => (
@@ -206,7 +233,7 @@ export default function Video1() {
                 )}
               </Pressable>
             </View>
-          )} */}
+          )}
         </View>
       </TouchableWithoutFeedback>
     </SafeAreaView>
@@ -235,7 +262,7 @@ const styles = StyleSheet.create({
     width: '100%',
     position: 'absolute',
     bottom: 0,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    backgroundColor: 'rgba(0, 0, 0, 0.7)',
     paddingVertical: 10,
     paddingHorizontal: 20,
     flexDirection: 'row',
