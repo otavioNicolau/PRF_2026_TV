@@ -205,7 +205,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   errorText: {
-    fontSize: 18,
+    fontSize: 25,
     color: 'red',
   },
   stepContainer: {
