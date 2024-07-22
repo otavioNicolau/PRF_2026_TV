@@ -1,7 +1,7 @@
 import { Stack, useLocalSearchParams } from 'expo-router';
 import React, { useState, useRef, useEffect, useCallback } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Dimensions, SafeAreaView, TouchableWithoutFeedback, Pressable } from 'react-native';
-import VLCPlayer from 'react-native-vlc-media-player';
+import { View, Text, StyleSheet, TouchableWithoutFeedback, Pressable, SafeAreaView } from 'react-native';
+import { Video } from 'expo-av';
 import * as FileSystem from 'expo-file-system';
 import Slider from '@react-native-community/slider';
 import { MaterialIcons } from '@expo/vector-icons';
@@ -58,7 +58,7 @@ export default function Video1() {
           const position = data[id_video].position;
           setVideoPosition(position);
           if (videoRef.current) {
-            videoRef.current.seek(position / 1000); // Seek to position in seconds
+            await videoRef.current.setPositionAsync(position);
           }
         }
       } catch (e) {
@@ -85,37 +85,37 @@ export default function Video1() {
 
   const increaseSpeed = useCallback(() => {
     setVideoSpeed(prevSpeed => Math.min(prevSpeed + 0.25, 2.0));
-    if (videoRef.current) {
-      videoRef.current.setRate(Math.min(videoSpeed + 0.25, 2.0));
-    }
-  }, [videoSpeed]);
+  }, []);
 
   const decreaseSpeed = useCallback(() => {
     setVideoSpeed(prevSpeed => Math.max(prevSpeed - 0.25, 0.5));
-    if (videoRef.current) {
-      videoRef.current.setRate(Math.max(videoSpeed - 0.25, 0.5));
+  }, []);
+
+  const handleFullscreenUpdate = async ({ fullscreenUpdate }) => {
+    if (fullscreenUpdate === Video.FULLSCREEN_UPDATE_PLAYER_DID_PRESENT) {
+      setIsFullscreen(true);
+      await ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.LANDSCAPE);
+    } else if (fullscreenUpdate === Video.FULLSCREEN_UPDATE_PLAYER_WILL_DISMISS) {
+      setIsFullscreen(false);
+      await ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT_UP);
     }
-  }, [videoSpeed]);
+  };
 
   const togglePlayPause = () => {
     if (isPlaying) {
-      videoRef.current.pause();
+      videoRef.current.pauseAsync();
     } else {
-      videoRef.current.play();
+      videoRef.current.playAsync();
     }
     setIsPlaying(!isPlaying);
     setControlsVisible(true); // Mostra os controles ao clicar no vídeo
     startControlsTimer(); // Reinicia o temporizador ao clicar no vídeo
   };
 
-  const handlePlaybackStatusUpdate = (event) => {
-    if (event.target === videoRef.current) {
-      if (event.type === 'Playing') {
-        setVideoPosition(event.currentTime * 1000);
-        setVideoDuration(event.duration * 1000);
-      } else if (event.type === 'Paused') {
-        setIsPlaying(false);
-      }
+  const handlePlaybackStatusUpdate = (status) => {
+    if (status.isLoaded) {
+      setVideoPosition(status.positionMillis);
+      setVideoDuration(status.durationMillis || 0);
     }
   };
 
@@ -124,7 +124,7 @@ export default function Video1() {
       const newPosition = value * videoDuration;
       setVideoPosition(newPosition);
       if (videoRef.current) {
-        videoRef.current.seek(newPosition / 1000);
+        await videoRef.current.setPositionAsync(newPosition);
       }
     }
   };
@@ -159,10 +159,10 @@ export default function Video1() {
         togglePlayPause();
         break;
       case 'left':
-        videoRef.current.seek(videoPosition / 1000 - 10); // Rewind 10 seconds
+        videoRef.current.setPositionAsync(videoPosition - 10000); // Rewind 10 seconds
         break;
       case 'right':
-        videoRef.current.seek(videoPosition / 1000 + 10); // Fast forward 10 seconds
+        videoRef.current.setPositionAsync(videoPosition + 10000); // Fast forward 10 seconds
         break;
       case 'up':
         increaseSpeed(); // Increase speed
@@ -171,7 +171,7 @@ export default function Video1() {
         decreaseSpeed(); // Decrease speed
         break;
       case 'select':
-        setControlsVisible(!controlsVisible);
+        togglePlayPause(); // Pause/Play video on OK button
         break;
       default:
         break;
@@ -190,17 +190,16 @@ export default function Video1() {
       />
       <TouchableWithoutFeedback onPress={handleTouchScreen}>
         <View style={[styles.videoContainer, isFullscreen && styles.fullscreenVideoContainer]}>
-          <VLCPlayer
+          <Video
             ref={videoRef}
             source={{ uri: video }}
             style={styles.video}
             resizeMode="contain"
-            autoplay={true}
             rate={videoSpeed}
-            onPlaying={handlePlaybackStatusUpdate}
-            onPaused={handlePlaybackStatusUpdate}
-            onStopped={handlePlaybackStatusUpdate}
-            onEnd={handlePlaybackStatusUpdate}
+            onFullscreenUpdate={handleFullscreenUpdate}
+            shouldPlay
+            onPlaybackStatusUpdate={handlePlaybackStatusUpdate}
+            useNativeControls={isFullscreen}
           />
           {!isFullscreen && controlsVisible && (
             <View style={styles.controlsContainer}>
@@ -260,37 +259,31 @@ const styles = StyleSheet.create({
     height: '100%',
   },
   controlsContainer: {
-    width: '100%',
     position: 'absolute',
     bottom: 20,
+    left: 0,
+    right: 0,
     flexDirection: 'row',
-    justifyContent: 'center',
     alignItems: 'center',
-    paddingHorizontal: 10,
+    justifyContent: 'space-evenly',
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
-  },
-  slider: {
-    flex: 1,
-    marginHorizontal: 10,
-  },
-  timeDisplay: {
-    color: 'white',
-    marginHorizontal: 10,
+    padding: 10,
   },
   controlButton: {
     padding: 10,
   },
   controlText: {
     color: 'white',
-    fontSize: 16,
-    marginHorizontal: 5,
+    fontSize: 18,
+  },
+  slider: {
+    flex: 1,
+    height: 40,
+  },
+  timeDisplay: {
+    color: 'white',
+    fontSize: 14,
+    paddingLeft: 5,
   },
 });
 
-export async function getInitialProps({ params }) {
-  return {
-    video: params.video,
-    titulo: params.titulo,
-    id_video: params.id_video,
-  };
-}
